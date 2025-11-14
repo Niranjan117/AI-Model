@@ -1,61 +1,104 @@
-Crop Analysis AI API
-AI-powered crop yield prediction and land use classification system with REST API for website and mobile app integration.
+# 🌾 Crop Analysis AI API
 
-Features
-Crop Yield Prediction: Predicts yield in tons/hectare with 95%+ accuracy
+An AI-powered crop yield prediction and land use classification system with a REST API for easy website and mobile app integration.
 
-Land Use Classification: Identifies percentages of Lake, River, Wheat, Rice, Corn, Barren land
+## ✨ Features
 
-Vegetation Health Analysis: NDVI, EVI, green coverage, vegetation density metrics
+* **Crop Yield Prediction**: Predicts yield in tons/hectare with 95%+ accuracy.
+* **Land Use Classification**: Identifies percentages of Lake, River, Wheat, Rice, Corn, and Barren land.
+* **Vegetation Health Analysis**: Provides NDVI, EVI, green coverage, and vegetation density metrics.
+* **REST API**: Simple integration with any website or mobile application.
+* **Batch Processing**: Analyze multiple images simultaneously.
+* **Auto-sync**: Automatically sends analysis results to your configured endpoints.
 
-REST API: Easy integration with websites and mobile apps
+## 🚀 Quick Start
 
-Batch Processing: Analyze multiple images simultaneously
+1.  **Install Dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-Auto-sync: Automatically sends results to configured endpoints
+2.  **Start Server**:
+    ```bash
+    python run_server.py
+    ```
+    **Or use the Windows batch file**:
+    ```bash
+    start.bat
+    ```
 
-Quick Start
-Install Dependencies:
+3.  **The server will display the accessible URLs**:
+    * **Local**: `http://localhost:8000/analyze`
+    * **Network**: `http://YOUR_IP:8000/analyze`
 
-Bash
+    > **Note**: Your network IP address (`YOUR_IP`) will change if you switch to a different WiFi network. You will need to restart the server to get the new IP.
 
-pip install -r requirements.txt
-Start Server:
+## 🔌 API Endpoints
 
-Bash
+**Base URL**: `http://YOUR_IP:8000` (replace `YOUR_IP` with the actual IP address shown when the server starts)
 
-python run_server.py
-Or use Windows batch file:
+---
 
-Bash
+Here is a clean, attractive version of your README, formatted for GitHub. You can copy and paste the entire content from the box below.
 
-start.bat
-Server will display URLs:
+Markdown
 
-Local: http://localhost:8000/analyze
+# 🌾 Crop Analysis AI API
 
-Network: http://YOUR_IP:8000/analyze
+An AI-powered crop yield prediction and land use classification system with a REST API for easy website and mobile app integration.
 
-Note: IP changes when you change WiFi - restart server to get new IP.
+## ✨ Features
 
-API Endpoints
-Base URL: http://YOUR_IP:8000 (replace YOUR_IP with actual IP shown when server starts)
+* **Crop Yield Prediction**: Predicts yield in tons/hectare with 95%+ accuracy.
+* **Land Use Classification**: Identifies percentages of Lake, River, Wheat, Rice, Corn, and Barren land.
+* **Vegetation Health Analysis**: Provides NDVI, EVI, green coverage, and vegetation density metrics.
+* **REST API**: Simple integration with any website or mobile application.
+* **Batch Processing**: Analyze multiple images simultaneously.
+* **Auto-sync**: Automatically sends analysis results to your configured endpoints.
 
-GET /analyze
-Get demo crop data (no image required)
+## 🚀 Quick Start
 
-Bash
+1.  **Install Dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
 
+2.  **Start Server**:
+    ```bash
+    python run_server.py
+    ```
+    **Or use the Windows batch file**:
+    ```bash
+    start.bat
+    ```
+
+3.  **The server will display the accessible URLs**:
+    * **Local**: `http://localhost:8000/analyze`
+    * **Network**: `http://YOUR_IP:8000/analyze`
+
+    > **Note**: Your network IP address (`YOUR_IP`) will change if you switch to a different WiFi network. You will need to restart the server to get the new IP.
+
+## 🔌 API Endpoints
+
+**Base URL**: `http://YOUR_IP:8000` (replace `YOUR_IP` with the actual IP address shown when the server starts)
+
+---
+
+### `GET /analyze`
+
+Get demo crop data. No image upload is required.
+
+```bash
 curl "http://YOUR_IP:8000/analyze"
 POST /analyze
-Analyze satellite image
+Analyze a single satellite image.
 
 Bash
 
 curl -X POST "http://YOUR_IP:8000/analyze" \
   -H "Content-Type: multipart/form-data" \
   -F "file=@satellite_image.jpg"
-Response:
+Example Response:
 
 JSON
 
@@ -78,93 +121,97 @@ JSON
   "status": "success"
 }
 POST /batch-analyze
-Analyze multiple images (max 10)
+Analyze multiple images in a single request (max 10).
 
 Bash
 
 curl -X POST "http://YOUR_IP:8000/batch-analyze" \
-  -F "files=@image1.jpg" -F "files=@image2.jpg"
+  -F "files=@image1.jpg" \
+  -F "files=@image2.jpg"
 POST /configure-webhooks
-Configure external system endpoints
+Configure external system endpoints for the auto-sync feature.
 
 Bash
 
 curl -X POST "http://YOUR_IP:8000/configure-webhooks" \
   -H "Content-Type: application/json" \
-  -d '{"website_url": "https://your-website.com/api/crop-data"}'
-Integration Examples
+  -d '{"website_url": "[https://your-website.com/api/crop-data](https://your-website.com/api/crop-data)"}'
+💻 Integration Examples
 Website Integration (JavaScript)
 JavaScript
 
-// Demo data (no image)
+// Example 1: Get demo data (no image)
 fetch('http://YOUR_IP:8000/analyze')
-.then(response => response.json())
-.then(data => {
-  console.log('Wheat:', data.land_use_percentages.wheat + '%');
-  console.log('Rice:', data.land_use_percentages.rice + '%');
-});
+  .then(response => response.json())
+  .then(data => {
+    console.log('Wheat:', data.land_use_percentages.wheat + '%');
+    console.log('Rice:', data.land_use_percentages.rice + '%');
+  });
 
-// Real image analysis
+// Example 2: Analyze a real image
 const formData = new FormData();
-formData.append('file', imageFile);
+formData.append('file', imageFile); // imageFile is from an <input type="file">
 
 fetch('http://YOUR_IP:8000/analyze', {
   method: 'POST',
   body: formData
 })
-.then(response => response.json())
-.then(data => {
-  console.log('Yield:', data.yield_prediction, 'tons/hectare');
-  console.log('Land use:', data.land_use_percentages);
-});
+  .then(response => response.json())
+  .then(data => {
+    console.log('Yield:', data.yield_prediction, 'tons/hectare');
+    console.log('Land use:', data.land_use_percentages);
+  });
 Mobile App Integration (Kotlin)
 Kotlin
 
 class CropAnalysisService {
     suspend fun analyzeCropImage(imageFile: File): CropAnalysisResult? {
-        // Implementation in client_examples.py
+        // See client_examples.py for a Python-based example
     }
 }
-Data Output Format
-The API returns comprehensive analysis data:
+📊 Data Output Format
+The API returns a comprehensive JSON object with the following data:
 
-Yield Prediction: Crop yield in tons per hectare
+yield_prediction: Crop yield in tons per hectare.
 
-Land Use Percentages:
+land_use_percentages: An object containing the percentage of land cover:
 
-Wheat: % of wheat crops
+wheat: % of wheat crops
 
-Rice: % of rice crops
+rice: % of rice crops
 
-Corn: % of corn crops
+corn: % of corn crops
 
-Lake: % of water bodies (lakes)
+lake: % of water bodies (lakes)
 
-River: % of water bodies (rivers)
+river: % of water bodies (rivers)
 
-Barren: % of barren/unused land
+barren: % of barren/unused land
 
-Vegetation Health: Normalized health indices (0-1 scale)
+vegetation_health: An object with normalized health indices (0-1 scale).
 
-Auto-sync to External Systems
-Configure your website and mobile backend URLs, and the API will automatically send analysis results to both systems whenever an image is analyzed.
+🔄 Auto-sync to External Systems
+After configuring your website and mobile backend URLs via the /configure-webhooks endpoint, the API will automatically POST the full analysis results to both systems every time a new image is successfully analyzed.
 
-File Structure
-ai_model.py: Core AI models
+📂 File Structure
+ai_model.py: Core AI models for prediction and classification.
 
-api_server.py: FastAPI REST server
+api_server.py: The FastAPI REST server logic.
 
-run_server.py: Server runner
+run_server.py: Server runner script.
 
-start.bat: Windows startup
+start.bat: Windows startup script.
 
-requirements.txt: Dependencies
+requirements.txt: Python dependencies.
 
-Model Performance
-Yield Prediction Accuracy: 95%+ within ±3 tons/hectare
+📈 Model Performance
+Yield Prediction Accuracy: 95%+ within ±3 tons/hectare.
 
-Land Use Classification: 90%+ accuracy
+Land Use Classification: 90%+ classification accuracy.
 
-Processing Time: ~2-3 seconds per image
+Processing Time: ~2-3 seconds per image.
 
-Supported Formats: JPG, PNG, TIFF
+Supported Formats: JPG, PNG, TIFF.
+
+```bash
+curl "http://YOUR_IP:8000/analyze"
