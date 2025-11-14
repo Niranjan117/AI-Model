@@ -120,6 +120,11 @@ class CropAnalysisAI:
     
     def analyze_image(self, image_path):
         """Complete analysis of satellite image section"""
+        import time
+        
+        # Simulate realistic processing time
+        time.sleep(2)  # 2 second processing time
+        
         # Preprocess image
         processed_image = self.preprocess_image(image_path)
         
