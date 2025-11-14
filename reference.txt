@@ -1,0 +1,248 @@
+CROP ANALYSIS API - INTEGRATION REFERENCE
+========================================
+
+API BASE URL: https://your-app-name.onrender.com
+
+ENDPOINTS:
+----------
+POST /analyze - Single image analysis
+POST /batch-analyze - Multiple images analysis
+GET / - API status
+
+SINGLE IMAGE ANALYSIS
+=====================
+
+JavaScript (Web):
+-----------------
+const formData = new FormData();
+formData.append('file', imageFile);
+
+fetch('https://your-app-name.onrender.com/analyze', {
+    method: 'POST',
+    body: formData
+})
+.then(response => response.json())
+.then(data => {
+    console.log('Yield:', data.yield_prediction, 'tons/hectare');
+    console.log('Wheat:', data.land_use_percentages.wheat, '%');
+    console.log('Rice:', data.land_use_percentages.rice, '%');
+    console.log('Water:', data.land_use_percentages.lake, '%');
+    console.log('Processing time:', data.processing_time_seconds, 'seconds');
+});
+
+React Native (Mobile App):
+--------------------------
+const uploadImage = async (imageUri) => {
+    const formData = new FormData();
+    formData.append('file', {
+        uri: imageUri,
+        type: 'image/jpeg',
+        name: 'satellite.jpg'
+    });
+
+    try {
+        const response = await fetch('https://your-app-name.onrender.com/analyze', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            }
+        });
+        
+        const result = await response.json();
+        
+        // Use the results
+        setYield(result.yield_prediction);
+        setWheatPercent(result.land_use_percentages.wheat);
+        setRicePercent(result.land_use_percentages.rice);
+        
+    } catch (error) {
+        console.error('Analysis failed:', error);
+    }
+};
+
+Flutter (Mobile App):
+--------------------
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+Future<Map<String, dynamic>> analyzeImage(File imageFile) async {
+    var request = http.MultipartRequest(
+        'POST', 
+        Uri.parse('https://your-app-name.onrender.com/analyze')
+    );
+    
+    request.files.add(await http.MultipartFile.fromPath('file', imageFile.path));
+    
+    var response = await request.send();
+    var responseData = await response.stream.toBytes();
+    var result = json.decode(String.fromCharCodes(responseData));
+    
+    return result;
+}
+
+BATCH ANALYSIS (Multiple Images)
+================================
+
+JavaScript:
+-----------
+const formData = new FormData();
+imageFiles.forEach(file => {
+    formData.append('files', file);
+});
+
+fetch('https://your-app-name.onrender.com/batch-analyze', {
+    method: 'POST',
+    body: formData
+})
+.then(response => response.json())
+.then(data => {
+    console.log('Total processing time:', data.total_processing_time_seconds);
+    console.log('Images processed:', data.images_processed);
+    data.results.forEach(result => {
+        console.log(`${result.filename}: ${result.yield_prediction} tons/hectare`);
+    });
+});
+
+RESPONSE FORMAT
+===============
+
+Single Image Response:
+{
+    "filename": "satellite_image.jpg",
+    "processing_time_seconds": 3.2,
+    "yield_prediction": 22.5,
+    "land_use_percentages": {
+        "wheat": 13.0,
+        "rice": 18.5,
+        "corn": 8.2,
+        "annual_crop": 6.3,
+        "permanent_crop": 2.1,
+        "lake": 5.2,
+        "river": 2.8,
+        "forest": 12.4,
+        "barren": 31.5
+    },
+    "vegetation_health": {
+        "ndvi": 0.72,
+        "evi": 0.68,
+        "green_coverage": 0.81,
+        "vegetation_density": 0.75
+    },
+    "weather_factors": {
+        "temperature": 25.0,
+        "humidity": 65.0,
+        "rainfall": 50.0,
+        "season": "post_monsoon",
+        "crop_season": "rabi",
+        "month": 11
+    },
+    "detailed_analysis": {
+        "total_agricultural_land": "46.0%",
+        "wheat_analysis": "Wheat covers 13.0% of total area",
+        "seasonal_info": "Current season: rabi",
+        "weather_impact": "Temperature: 25°C, Rainfall: 50mm",
+        "crop_distribution": {
+            "wheat": "13.0%",
+            "rice": "18.5%",
+            "other_annual_crops": "6.3%"
+        }
+    },
+    "status": "analyzed"
+}
+
+Batch Analysis Response:
+{
+    "total_processing_time_seconds": 15.6,
+    "images_processed": 5,
+    "results": [
+        {
+            "filename": "field1.jpg",
+            "yield_prediction": 18.5,
+            "land_use_percentages": {...},
+            "vegetation_health": {...}
+        },
+        ...
+    ],
+    "status": "batch_completed"
+}
+
+ERROR HANDLING
+==============
+
+JavaScript:
+-----------
+fetch('https://your-app-name.onrender.com/analyze', {
+    method: 'POST',
+    body: formData
+})
+.then(response => {
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+})
+.then(data => {
+    // Success
+})
+.catch(error => {
+    console.error('Error:', error);
+    alert('Analysis failed. Please try again.');
+});
+
+SUPPORTED IMAGE FORMATS
+=======================
+- JPG/JPEG
+- PNG
+- TIFF
+- Maximum file size: 10MB per image
+- Maximum batch size: 10 images
+
+RATE LIMITS
+===========
+- No rate limits currently
+- Processing time: 2-5 seconds per image
+- Concurrent requests: Supported
+
+CORS POLICY
+===========
+- All origins allowed (*)
+- All methods allowed
+- All headers allowed
+
+DEPLOYMENT INFO
+===============
+- Platform: Render.com
+- Framework: FastAPI + TensorFlow
+- AI Model: CNN (Convolutional Neural Network)
+- Image Resolution: 512x512 processing
+- Response Time: 2-5 seconds per image
+
+TESTING THE API
+===============
+
+cURL Command:
+curl -X POST "https://your-app-name.onrender.com/analyze" \
+  -F "file=@/path/to/satellite_image.jpg"
+
+Postman:
+1. Set method to POST
+2. URL: https://your-app-name.onrender.com/analyze
+3. Body -> form-data
+4. Key: "file" (type: File)
+5. Value: Select image file
+6. Send request
+
+INTEGRATION CHECKLIST
+=====================
+□ Replace "your-app-name" with actual Render URL
+□ Add error handling for network failures
+□ Show loading indicator during processing
+□ Validate image file before upload
+□ Handle large file sizes appropriately
+□ Test with different image formats
+□ Implement retry logic for failed requests
+
+CONTACT
+=======
+For API issues or questions, check server logs on Render dashboard.

@@ -40,7 +40,7 @@ async def root():
 
 @app.post("/analyze")
 async def analyze_crop_image(file: UploadFile = File(...)):
-    """Analyze single uploaded image - REAL PROCESSING ONLY"""
+    """Analyze single uploaded satellite image"""
     if not file.content_type.startswith('image/'):
         raise HTTPException(status_code=400, detail="File must be an image")
     
@@ -54,7 +54,7 @@ async def analyze_crop_image(file: UploadFile = File(...)):
             tmp_file.write(content)
             tmp_file_path = tmp_file.name
         
-        # REAL ANALYSIS - takes time
+        # Perform image analysis
         results = ai_model.analyze_image(tmp_file_path)
         os.unlink(tmp_file_path)
         
@@ -67,6 +67,8 @@ async def analyze_crop_image(file: UploadFile = File(...)):
             "yield_prediction": results["yield_prediction"],
             "land_use_percentages": results["land_use_percentages"],
             "vegetation_health": results["vegetation_health"],
+            "weather_factors": results.get("weather_factors", {}),
+            "detailed_analysis": results.get("detailed_analysis", {}),
             "status": "analyzed"
         }
         
@@ -82,7 +84,7 @@ async def analyze_crop_image(file: UploadFile = File(...)):
 
 @app.get("/analyze")
 async def get_demo_info():
-    """Info endpoint - no fake data"""
+    """API information endpoint"""
     return {
         "message": "Upload an image using POST to get real analysis",
         "instructions": "Send POST request with 'file' parameter containing image",
@@ -92,7 +94,7 @@ async def get_demo_info():
 
 @app.post("/batch-analyze")
 async def batch_analyze(files: list[UploadFile] = File(...)):
-    """Analyze multiple images - REAL PROCESSING"""
+    """Analyze multiple satellite images"""
     if len(files) > 10:
         raise HTTPException(status_code=400, detail="Maximum 10 files allowed")
     

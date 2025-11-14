@@ -1,0 +1,96 @@
+MIT License
+
+Copyright (c) 2024 Crop Analysis AI Research Team
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+THIRD-PARTY LICENSES AND ACKNOWLEDGMENTS
+
+This software uses the following third-party libraries and services:
+
+1. TensorFlow (Apache License 2.0)
+   - Copyright 2015 The TensorFlow Authors
+   - Used for deep learning model development
+
+2. OpenCV (Apache License 2.0)
+   - Copyright 2000-2023 Intel Corporation
+   - Used for computer vision and image processing
+
+3. FastAPI (MIT License)
+   - Copyright 2018 Sebastián Ramírez
+   - Used for REST API development
+
+4. NumPy (BSD License)
+   - Copyright 2005-2023 NumPy Developers
+   - Used for numerical computations
+
+5. scikit-learn (BSD License)
+   - Copyright 2007-2023 The scikit-learn developers
+   - Used for machine learning utilities
+
+6. Requests (Apache License 2.0)
+   - Copyright 2019 Kenneth Reitz
+   - Used for HTTP API requests
+
+DATA SOURCES AND ACKNOWLEDGMENTS:
+
+1. NASA Earth Data
+   - Soil moisture data from NASA SMAP mission
+   - Satellite imagery metadata
+   - Public domain data
+
+2. OpenWeatherMap API
+   - Weather data services
+   - Subject to OpenWeatherMap terms of service
+
+3. Sentinel Hub
+   - Satellite imagery access
+   - Subject to Sentinel Hub terms of service
+
+4. USGS Earth Explorer
+   - Landsat satellite data
+   - Public domain data
+
+DISCLAIMER:
+
+This software is designed for research and educational purposes. While we strive
+for accuracy, the predictions and analyses provided by this system should not be
+used as the sole basis for agricultural or financial decisions. Users should
+consult with agricultural experts and consider multiple data sources when making
+important decisions.
+
+The accuracy of predictions depends on various factors including:
+- Quality and resolution of input satellite imagery
+- Weather data accuracy and availability
+- Regional agricultural practices and conditions
+- Seasonal variations and climate patterns
+
+RESEARCH ETHICS:
+
+This project is committed to:
+- Open source development and transparency
+- Responsible AI practices
+- Environmental sustainability
+- Supporting global food security research
+- Ethical use of satellite and weather data
+
+For questions about licensing or usage, please contact:
+research@cropanalysis.ai
