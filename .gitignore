@@ -1,0 +1,28 @@
+# Ignore large files and folders
+__pycache__/
+*.h5
+*.png
+*.csv
+satellite_data/
+AnnualCrop/
+Forest/
+HerbaceousVegetation/
+Highway/
+Industrial/
+Pasture/
+PermanentCrop/
+Residential/
+Rice/
+River/
+SeaLake/
+Sugercane/
+Wheat/
+
+# Ignore temporary files
+*.pyc
+*.log
+*.tmp
+
+# Ignore model files (too large for GitHub)
+best_model.h5
+crop_classifier_model.h5
