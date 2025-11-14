@@ -4,8 +4,12 @@ from pydantic import BaseModel
 import os
 import tempfile
 import time
+from datetime import datetime
 from ai_model import CropAnalysisAI
 import requests
+import logging
+
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Crop Analysis AI API", version="1.0.0")
 
@@ -36,7 +40,16 @@ async def startup_event():
 
 @app.get("/")
 async def root():
-    return {"message": "Crop Analysis AI API", "status": "running", "version": "1.0.0"}
+    return {"message": "Crop Analysis AI API", "status": "running", "version": "2.1.0"}
+
+@app.get("/health")
+async def health_check():
+    return {
+        "status": "healthy",
+        "version": "2.1.0",
+        "model_loaded": ai_model is not None,
+        "timestamp": datetime.now().isoformat()
+    }
 
 @app.post("/analyze")
 async def analyze_crop_image(file: UploadFile = File(...)):

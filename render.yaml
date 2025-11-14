@@ -1,9 +1,16 @@
 services:
   - type: web
-    name: crop-analysis-api
+    name: crop-analysis-ai
     env: python
-    buildCommand: pip install -r requirements.txt
+    region: oregon
+    plan: starter
+    buildCommand: ./render_build.sh
     startCommand: python run_server.py
+    healthCheckPath: /health
     envVars:
-      - key: PORT
-        value: 8000
+      - key: PYTHON_VERSION
+        value: 3.9.18
+      - key: OPENWEATHER_API_KEY
+        value: your_openweather_key
+      - key: NASA_API_KEY
+        value: DEMO_KEY

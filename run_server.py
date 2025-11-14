@@ -1,29 +1,41 @@
 #!/usr/bin/env python3
 """
-Simple server runner for Crop Analysis AI
+Crop Analysis AI Server - Render Deployment Ready
 """
 import uvicorn
 import os
+import sys
+import logging
 
-def get_current_ip():
-    import socket
+# Setup basic logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+def main():
+    """Main server startup function"""
     try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect(("8.8.8.8", 80))
-        ip = s.getsockname()[0]
-        s.close()
-        return ip
-    except:
-        return "Unable to get IP"
+        # Get port from environment (Render sets this)
+        port = int(os.environ.get("PORT", 8000))
+        
+        # Log startup information
+        logger.info("Starting Crop Analysis AI Server...")
+        logger.info(f"Python version: {sys.version}")
+        logger.info(f"Port: {port}")
+        logger.info(f"Environment: {os.environ.get('RENDER', 'local')}")
+        
+        # Start server
+        uvicorn.run(
+            "api_server:app",
+            host="0.0.0.0",
+            port=port,
+            reload=False,
+            log_level="info",
+            access_log=True
+        )
+        
+    except Exception as e:
+        logger.error(f"Server startup failed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8000))
-    current_ip = get_current_ip()
-    print("Starting Crop Analysis AI Server...")
-    print("=" * 50)
-    print(f"Local API: http://localhost:{port}/analyze")
-    print(f"Network API: http://{current_ip}:{port}/analyze")
-    print(f"Share this URL: http://{current_ip}:{port}/analyze")
-    print("=" * 50)
-    
-    uvicorn.run("api_server:app", host="0.0.0.0", port=port, reload=False)
+    main()
