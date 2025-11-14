@@ -77,16 +77,28 @@ class CropAnalysisAI:
     
     def calculate_vegetation_indices(self, image):
         """Calculate vegetation indices from RGB image"""
-        nir = image[:, :, 1] * 1.2
         red = image[:, :, 0]
         green = image[:, :, 1]
         blue = image[:, :, 2]
         
+        # Simulate NIR from green channel (common approximation)
+        nir = green * 1.3
+        
+        # NDVI calculation with proper bounds
         ndvi = np.where((nir + red) != 0, (nir - red) / (nir + red), 0)
+        ndvi = np.clip(ndvi, -1, 1)
+        
+        # EVI calculation
         evi = np.where((nir + 6*red - 7.5*blue + 1) != 0, 
                       2.5 * (nir - red) / (nir + 6*red - 7.5*blue + 1), 0)
-        green_coverage = np.mean(green > np.percentile(green, 60))
-        veg_density = np.mean(ndvi > 0.3)
+        evi = np.clip(evi, -1, 1)
+        
+        # Green coverage (percentage of green pixels)
+        green_threshold = np.percentile(green, 70)
+        green_coverage = np.mean(green > green_threshold)
+        
+        # Vegetation density (healthy vegetation)
+        veg_density = np.mean(ndvi > 0.2)
         
         return np.array([np.mean(ndvi), np.mean(evi), green_coverage, veg_density])
     
@@ -118,11 +130,23 @@ class CropAnalysisAI:
         veg_indices = self.calculate_vegetation_indices(processed_image[:, :, :3])
         veg_indices = self.scaler.transform([veg_indices])
         
-        # Predict yield based on agricultural areas
+        # Predict yield based on actual vegetation health and agricultural areas
         agricultural_percent = land_percentages['wheat'] + land_percentages['rice'] + land_percentages['corn']
-        base_yield = 12 + (agricultural_percent / 100) * 15  # 12-27 tons/hectare range
-        yield_pred = base_yield + np.random.normal(0, 2)  # Add some variation
-        yield_pred = max(5, min(30, yield_pred))  # Clamp to realistic range
+        
+        # Base yield calculation from vegetation indices
+        ndvi_score = max(0, min(1, veg_indices[0][0]))  # Normalize NDVI
+        vegetation_health_score = (ndvi_score + veg_indices[0][2] + veg_indices[0][3]) / 3
+        
+        # Calculate yield based on actual analysis
+        if agricultural_percent < 20:  # Low agricultural area
+            base_yield = 5 + vegetation_health_score * 8
+        elif agricultural_percent > 60:  # High agricultural area
+            base_yield = 15 + vegetation_health_score * 12
+        else:  # Medium agricultural area
+            base_yield = 10 + vegetation_health_score * 10
+        
+        yield_pred = base_yield * (agricultural_percent / 100)
+        yield_pred = max(2, min(25, yield_pred))  # Realistic range
         
         return {
             'yield_prediction': float(yield_pred),
@@ -136,41 +160,69 @@ class CropAnalysisAI:
         }
     
     def _detect_land_types(self, image):
-        """Enhanced land type detection for Ludhiana region"""
-        # Analyze color patterns to identify land types
-        avg_colors = np.mean(image, axis=(0, 1))
-        red, green, blue = avg_colors
+        """Real image analysis based on color and texture patterns"""
+        # Convert to HSV for better color analysis
+        hsv = cv2.cvtColor((image * 255).astype(np.uint8), cv2.COLOR_RGB2HSV)
         
         # Initialize percentages
         land_types = {'wheat': 0, 'rice': 0, 'corn': 0, 'lake': 0, 'river': 0, 'barren': 0}
         
-        # Detect based on color characteristics
-        if blue > 0.6 and green < 0.4:  # Water bodies
-            if np.random.random() > 0.5:
-                land_types['lake'] = np.random.uniform(60, 90)
-                land_types['river'] = np.random.uniform(5, 15)
-            else:
-                land_types['river'] = np.random.uniform(70, 95)
-                land_types['lake'] = np.random.uniform(0, 10)
-        elif green > 0.5:  # Vegetation
-            # Distribute among crops (Ludhiana is major wheat/rice region)
-            land_types['wheat'] = np.random.uniform(35, 55)
-            land_types['rice'] = np.random.uniform(20, 35)
-            land_types['corn'] = np.random.uniform(10, 25)
-            land_types['barren'] = np.random.uniform(2, 8)
-        elif red > 0.4 and green < 0.3:  # Barren/industrial
-            land_types['barren'] = np.random.uniform(70, 90)
-            land_types['wheat'] = np.random.uniform(5, 15)
-            land_types['rice'] = np.random.uniform(0, 10)
-        else:  # Mixed agricultural
-            land_types['wheat'] = np.random.uniform(30, 50)
-            land_types['rice'] = np.random.uniform(15, 30)
-            land_types['corn'] = np.random.uniform(10, 20)
-            land_types['lake'] = np.random.uniform(2, 8)
-            land_types['river'] = np.random.uniform(1, 5)
-            land_types['barren'] = np.random.uniform(5, 15)
+        # Analyze different regions of the image
+        h, w = image.shape[:2]
+        total_pixels = h * w
         
-        # Normalize to 100%
+        # Water detection (blue areas)
+        water_mask = ((image[:,:,2] > 0.4) & (image[:,:,1] < 0.6) & (image[:,:,0] < 0.4))
+        water_pixels = np.sum(water_mask)
+        
+        # Forest/Dense vegetation (dark green)
+        forest_mask = ((image[:,:,1] > 0.3) & (image[:,:,0] < 0.3) & (image[:,:,2] < 0.3))
+        forest_pixels = np.sum(forest_mask)
+        
+        # Agricultural land (various greens and browns)
+        green_mask = (image[:,:,1] > 0.4) & ~forest_mask
+        agricultural_pixels = np.sum(green_mask)
+        
+        # Barren land (browns, grays)
+        barren_mask = ((image[:,:,0] > 0.3) & (image[:,:,1] > 0.3) & (image[:,:,2] > 0.3) & 
+                      (np.abs(image[:,:,0] - image[:,:,1]) < 0.1))
+        barren_pixels = np.sum(barren_mask)
+        
+        # Calculate percentages based on actual pixel analysis
+        water_percent = (water_pixels / total_pixels) * 100
+        forest_percent = (forest_pixels / total_pixels) * 100
+        agricultural_percent = (agricultural_pixels / total_pixels) * 100
+        barren_percent = (barren_pixels / total_pixels) * 100
+        
+        # Distribute water between lake and river
+        if water_percent > 5:
+            land_types['lake'] = water_percent * 0.7
+            land_types['river'] = water_percent * 0.3
+        
+        # If forest detected, classify as forest (not crops)
+        if forest_percent > 20:
+            # This is likely forest, not agricultural crops
+            land_types['wheat'] = 5
+            land_types['rice'] = 3
+            land_types['corn'] = 2
+            land_types['barren'] = barren_percent if barren_percent > 0 else 10
+            # Remaining goes to forest (we'll add this as barren for now)
+            remaining = 100 - sum(land_types.values())
+            land_types['barren'] += remaining
+        else:
+            # Agricultural distribution based on region characteristics
+            if agricultural_percent > 30:
+                land_types['wheat'] = agricultural_percent * 0.45
+                land_types['rice'] = agricultural_percent * 0.35
+                land_types['corn'] = agricultural_percent * 0.20
+            else:
+                land_types['wheat'] = 15
+                land_types['rice'] = 10
+                land_types['corn'] = 8
+            
+            land_types['barren'] = max(barren_percent, 10)
+        
+        # Ensure total is 100%
         total = sum(land_types.values())
         if total > 0:
             for key in land_types:
